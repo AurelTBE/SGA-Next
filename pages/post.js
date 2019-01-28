@@ -1,20 +1,22 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
+import fetch from 'isomorphic-unfetch'
+import { Fragment } from 'react';
 
-import React, {Fragment} from 'react';
-import Typography from '@material-ui/core/Typography';
-import { withRouter } from 'next/router'
-
-const Content = withRouter((props) => (
-    <div style={{textAlign: 'center'}}>
-      <Typography variant="h4" gutterBottom>{props.router.query.title}</Typography>
-      <p>This is the blog post content.</p>
-    </div>
-  ))
-  
-const Page = (props) => (
+const Post = (props) => (
     <Fragment>
-        <Content />
+       <h1>{props.show.name}</h1>
+       <p>{props.show.summary.replace(/<[/]?p>/g, '')}</p>
+       <img src={props.show.image.medium}/>
     </Fragment>
 )
 
-export default Page;
+Post.getInitialProps = async function (context) {
+  const { id } = context.query
+  const res = await fetch(`https://api.tvmaze.com/shows/${id}`)
+  const show = await res.json()
+
+  console.log(`Fetched show: ${show.name}`)
+
+  return { show }
+}
+
+export default Post

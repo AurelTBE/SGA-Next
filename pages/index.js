@@ -1,50 +1,33 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import Typography from '@material-ui/core/Typography';
-import { withStyles } from '@material-ui/core/styles';
+import React, {Fragment} from 'react';
 import Link from 'next/link'
+import fetch from 'isomorphic-unfetch'
 
-const PostLink = (props) => (
-  <li>
-    <Link as={`/p/${props.id}`} href={`/post?title=${props.title}`}>
-      <a>{props.title}</a>
-    </Link>
-  </li>
+const Index = (props) => (
+  <Fragment>
+    <h1>Batman TV Shows</h1>
+    <ul>
+      {props.shows.map(({show}) => (
+        <li key={show.id}>
+          <Link as={`/p/${show.id}`} href={`/post?id=${show.id}`}>
+            <a>{show.name}</a>
+          </Link>
+        </li>
+      ))}
+    </ul>
+  </Fragment>
 )
 
-const styles = theme => ({
-  root: {
-    textAlign: 'center',
-    paddingTop: theme.spacing.unit * 20,
-  },
-});
+Index.getInitialProps = async function() {
+  const res = await fetch('https://api.tvmaze.com/search/shows?q=batman')
+  const data = await res.json()
 
-class Index extends React.Component {
-  state = {
-  };
+  console.log(`Show data fetched. Count: ${data.length}`)
 
-  render() {
-    const { classes } = this.props;
-
-    return (
-      <div className={classes.root}>
-        <Typography variant="h4" gutterBottom>
-          My Blog
-        </Typography>
-      <ul>
-      <PostLink id="hello-nextjs" title="Hello Next.js"/>
-      <PostLink id="learn-nextjs" title="Learn Next.js is awesome"/>
-      <PostLink id="deploy-nextjs" title="Deploy apps with Zeit"/>
-      </ul>
-      </div>
-    );
+  return {
+    shows: data
   }
 }
 
-Index.propTypes = {
-  classes: PropTypes.object.isRequired,
-};
-
-export default withStyles(styles)(Index);
+export default Index
